@@ -2,7 +2,7 @@
   'use strict';
 
   // Logs detection changes with [GPS] and outlines the stage + current media box in magenta.
-  const DEBUG = true;
+  const DEBUG = false;
 
   // Every Google Photos selector lives here. Class names are obfuscated and churn,
   // so only jsname attributes and aria-labels are used.
