@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Slideshow Styler</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>
+    <h1>Slideshow Styler</h1>
+    <label class="switch" title="Enable / disable">
+      <input type="checkbox" data-key="enabled">
+      <span></span>
+    </label>
+  </header>
+
+  <section>
+    <h2>Presets</h2>
+    <div class="presets" id="presets"></div>
+  </section>
+
+  <section>
+    <h2>Background</h2>
+    <label class="row">
+      <span>Mode</span>
+      <select data-key="bgMode">
+        <option value="solid">Solid color</option>
+        <option value="gradient">Gradient</option>
+        <option value="image">Image URL</option>
+        <option value="blur">Blurred photo</option>
+      </select>
+    </label>
+    <label class="row" data-modes="solid image">
+      <span>Color</span><input type="color" data-key="bgColor">
+    </label>
+    <label class="row" data-modes="gradient">
+      <span>Color 1</span><input type="color" data-key="gradColor1">
+    </label>
+    <label class="row" data-modes="gradient">
+      <span>Color 2</span><input type="color" data-key="gradColor2">
+    </label>
+    <label class="row" data-modes="gradient">
+      <span>Angle</span><input type="range" data-key="gradAngle"><output></output>
+    </label>
+    <label class="row" data-modes="image">
+      <span>URL</span><input type="url" data-key="bgImageUrl" placeholder="https://…">
+    </label>
+    <label class="row" data-modes="blur">
+      <span>Blur</span><input type="range" data-key="blurAmount"><output></output>
+    </label>
+    <label class="row" data-modes="blur">
+      <span>Brightness</span><input type="range" data-key="blurBrightness"><output></output>
+    </label>
+  </section>
+
+  <section>
+    <h2>Frame</h2>
+    <label class="row">
+      <span>Margin</span><input type="range" data-key="margin"><output></output>
+    </label>
+    <label class="row">
+      <span>Mat</span><input type="range" data-key="matWidth"><output></output>
+    </label>
+    <label class="row">
+      <span>Mat color</span><input type="color" data-key="matColor">
+    </label>
+    <label class="row">
+      <span>Frame</span><input type="range" data-key="frameWidth"><output></output>
+    </label>
+    <label class="row">
+      <span>Frame color</span><input type="color" data-key="frameColor">
+    </label>
+    <label class="row">
+      <span>Corners</span><input type="range" data-key="radius"><output></output>
+    </label>
+  </section>
+
+  <section>
+    <h2>Shadow</h2>
+    <label class="row">
+      <span>Offset X</span><input type="range" data-key="shadowX"><output></output>
+    </label>
+    <label class="row">
+      <span>Offset Y</span><input type="range" data-key="shadowY"><output></output>
+    </label>
+    <label class="row">
+      <span>Blur</span><input type="range" data-key="shadowBlur"><output></output>
+    </label>
+    <label class="row">
+      <span>Spread</span><input type="range" data-key="shadowSpread"><output></output>
+    </label>
+    <label class="row">
+      <span>Color</span><input type="color" data-key="shadowColor">
+    </label>
+    <label class="row">
+      <span>Opacity</span><input type="range" data-key="shadowOpacity"><output></output>
+    </label>
+  </section>
+
+  <footer>
+    <button type="button" id="reset">Reset to defaults</button>
+    <span id="status" role="status"></span>
+  </footer>
+
+  <script src="settings.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

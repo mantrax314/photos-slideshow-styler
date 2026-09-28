@@ -1,0 +1,109 @@
+/*
+ * Google Photos Slideshow Styler.
+ * Targets only our own data-gps markers (set by content.js from its SELECTORS),
+ * and everything is scoped under html.gps-active so normal browsing is untouched.
+ * All values are CSS variables on <html>; content.js overwrites these defaults.
+ */
+
+:root {
+  --gps-bg-color: #2b2b2b;
+  --gps-grad-1: #1f2933;
+  --gps-grad-2: #000000;
+  --gps-grad-angle: 160deg;
+  --gps-bg-image: none;
+  --gps-bg-blur: 40px;
+  --gps-bg-brightness: 0.6;
+  --gps-margin: 48px;
+  --gps-mat: 40px;
+  --gps-mat-color: #ffffff;
+  --gps-frame: 6px;
+  --gps-frame-color: #111111;
+  --gps-radius: 0px;
+  --gps-shadow-x: 0px;
+  --gps-shadow-y: 12px;
+  --gps-shadow-blur: 40px;
+  --gps-shadow-spread: 0px;
+  --gps-shadow-color: rgba(0, 0, 0, 0.5);
+}
+
+/* ---------- Background ---------- */
+
+html.gps-active [data-gps="ambient"] {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* Slides must be see-through so the stage paint shows. */
+html.gps-active [data-gps="slide"] {
+  background: transparent !important;
+}
+
+html.gps-active [data-gps="stage"] {
+  background: var(--gps-bg-color) !important;
+  isolation: isolate;
+}
+
+html.gps-active [data-gps="stage"][data-gps-static] {
+  position: relative !important;
+}
+
+html.gps-active[data-gps-bg="gradient"] [data-gps="stage"] {
+  background: linear-gradient(var(--gps-grad-angle), var(--gps-grad-1), var(--gps-grad-2)) !important;
+}
+
+html.gps-active[data-gps-bg="image"] [data-gps="stage"] {
+  background: var(--gps-bg-image) center / cover no-repeat, var(--gps-bg-color) !important;
+}
+
+html.gps-active[data-gps-bg="blur"] [data-gps="stage"] {
+  background: #000 !important;
+  overflow: hidden !important;
+}
+
+/* Blurred copy of the current photo, behind the slides (z-index -1 inside the isolated stage). */
+html.gps-active[data-gps-bg="blur"] [data-gps="stage"]::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--gps-bg-blur) * -2);
+  z-index: -1;
+  pointer-events: none;
+  background: var(--gps-photo, none) center / cover no-repeat;
+  filter: blur(var(--gps-bg-blur)) brightness(var(--gps-bg-brightness));
+  transition: background-image 0.6s ease;
+}
+
+/* ---------- Fit: shrink the media box so the frame fits ---------- */
+
+/* `scale` composes with Google's inline `transform`; its inline top/left/width/height stay untouched. */
+html.gps-active [data-gps="box"] {
+  scale: var(--gps-fit, 1);
+  overflow: visible !important;
+}
+
+/* ---------- Frame + shadow ---------- */
+
+/*
+ * Drawn on hPe5Dc so it fades with the photo during transitions.
+ * The parent's `scale` shrinks everything, so sizes are divided by --gps-fit
+ * to keep the chosen on-screen pixel sizes.
+ * Order: mat (passe-partout), frame around it, drop shadow around the frame.
+ */
+html.gps-active [data-gps="mat"] {
+  border-radius: calc(var(--gps-radius) / var(--gps-fit, 1)) !important;
+  overflow: hidden !important;
+  box-shadow:
+    0 0 0 calc(var(--gps-mat) / var(--gps-fit, 1)) var(--gps-mat-color),
+    0 0 0 calc((var(--gps-mat) + var(--gps-frame)) / var(--gps-fit, 1)) var(--gps-frame-color),
+    calc(var(--gps-shadow-x) / var(--gps-fit, 1))
+      calc(var(--gps-shadow-y) / var(--gps-fit, 1))
+      calc(var(--gps-shadow-blur) / var(--gps-fit, 1))
+      calc((var(--gps-mat) + var(--gps-frame) + var(--gps-shadow-spread)) / var(--gps-fit, 1))
+      var(--gps-shadow-color) !important;
+}
+
+/* ---------- Debug (content.js DEBUG = true) ---------- */
+
+html.gps-active [data-gps-debug] {
+  outline: 3px dashed magenta !important;
+  outline-offset: -3px;
+}

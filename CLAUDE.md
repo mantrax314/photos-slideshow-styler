@@ -1,0 +1,1 @@
+Manifest V3 extension for Brave/Chrome that restyles the Google Photos slideshow (background, shadow, frame).

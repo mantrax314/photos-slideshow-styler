@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Google Photos Slideshow Styler",
+  "version": "0.1.0",
+  "description": "Restyles the Google Photos slideshow (background, shadow, frame).",
+  "permissions": ["storage"],
+  "action": {
+    "default_title": "Slideshow Styler",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://photos.google.com/*"],
+      "run_at": "document_idle",
+      "js": ["settings.js", "content.js"],
+      "css": ["styles.css"]
+    }
+  ]
+}
