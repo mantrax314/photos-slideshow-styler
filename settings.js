@@ -31,6 +31,12 @@ const GPS = (() => {
     shadowSpread: 0,
     shadowColor: '#000000',
     shadowOpacity: 0.5,
+
+    ambEnabled: false,
+    ambIntensity: 0.9,
+    ambSize: 260,
+    ambSaturation: 1.5,
+    ambSpeed: 1,
   };
 
   // min / max / step for every numeric setting (used for clamping and by the popup sliders).
@@ -47,6 +53,10 @@ const GPS = (() => {
     shadowBlur: [0, 300, 1],
     shadowSpread: [-100, 200, 1],
     shadowOpacity: [0, 1, 0.05],
+    ambIntensity: [0.1, 1, 0.05],
+    ambSize: [60, 600, 10],
+    ambSaturation: [0.5, 3, 0.1],
+    ambSpeed: [0, 3, 0.1],
   };
 
   const PRESETS = {
@@ -72,6 +82,15 @@ const GPS = (() => {
         bgMode: 'solid', bgColor: '#000000',
         margin: 40, matWidth: 48, matColor: '#f3ead3', frameWidth: 18, frameColor: '#b8912f', radius: 0,
         shadowX: 0, shadowY: 16, shadowBlur: 48, shadowSpread: 0, shadowColor: '#000000', shadowOpacity: 0.8,
+      },
+    },
+    ambilight: {
+      label: 'Ambilight',
+      values: {
+        bgMode: 'solid', bgColor: '#050505',
+        margin: 140, matWidth: 0, frameWidth: 3, frameColor: '#0a0a0a', radius: 6,
+        shadowX: 0, shadowY: 0, shadowBlur: 0, shadowSpread: 0, shadowColor: '#000000', shadowOpacity: 0,
+        ambEnabled: true, ambIntensity: 1, ambSize: 300, ambSaturation: 1.7, ambSpeed: 1,
       },
     },
   };

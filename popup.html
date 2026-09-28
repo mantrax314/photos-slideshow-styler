@@ -97,6 +97,30 @@
     </label>
   </section>
 
+  <section>
+    <h2>Ambient light</h2>
+    <label class="row">
+      <span>Enabled</span>
+      <span class="switch">
+        <input type="checkbox" data-key="ambEnabled">
+        <span></span>
+      </span>
+    </label>
+    <p class="hint" data-requires="ambEnabled">Glows behind the photo in the colors of its edges, like a TV backlight.</p>
+    <label class="row" data-requires="ambEnabled">
+      <span>Intensity</span><input type="range" data-key="ambIntensity"><output></output>
+    </label>
+    <label class="row" data-requires="ambEnabled">
+      <span>Size</span><input type="range" data-key="ambSize"><output></output>
+    </label>
+    <label class="row" data-requires="ambEnabled">
+      <span>Vividness</span><input type="range" data-key="ambSaturation"><output></output>
+    </label>
+    <label class="row" data-requires="ambEnabled">
+      <span>Animation</span><input type="range" data-key="ambSpeed"><output></output>
+    </label>
+  </section>
+
   <footer>
     <button type="button" id="reset">Reset to defaults</button>
     <span id="status" role="status"></span>

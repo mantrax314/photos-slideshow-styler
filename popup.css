@@ -65,7 +65,16 @@ section {
   min-height: 28px;
 }
 
-.row[hidden] { display: none; }
+.row[hidden],
+.hint[hidden] { display: none; }
+
+.hint {
+  margin: 2px 0 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.row > .switch { grid-column: 3; justify-self: end; }
 
 .row > select,
 .row > input[type="url"],

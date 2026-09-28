@@ -101,6 +101,109 @@ html.gps-active [data-gps="mat"] {
       var(--gps-shadow-color) !important;
 }
 
+/* ---------- Ambient light (Govee / Ambilight style) ---------- */
+
+/*
+ * One glow layer behind the slides, sized to the current frame plus --gps-amb-size on each side.
+ * 16 lights (4 per edge, clockwise from top-left) take the colors content.js samples from the
+ * matching edge of the photo. --gps-amb-phase drives the flow (drift along the edge + pulsing
+ * reach); a second animation breathes the whole layer. Colors and geometry are registered
+ * properties, so they cross-fade between slides.
+ */
+@property --gps-amb-c0 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --gps-amb-c1 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --gps-amb-c2 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --gps-amb-c3 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --gps-amb-c4 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --gps-amb-c5 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --gps-amb-c6 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --gps-amb-c7 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --gps-amb-c8 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --gps-amb-c9 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --gps-amb-c10 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --gps-amb-c11 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --gps-amb-c12 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --gps-amb-c13 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --gps-amb-c14 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --gps-amb-c15 { syntax: "<color>"; inherits: true; initial-value: transparent; }
+@property --gps-amb-l { syntax: "<length>"; inherits: true; initial-value: 0px; }
+@property --gps-amb-t { syntax: "<length>"; inherits: true; initial-value: 0px; }
+@property --gps-amb-w { syntax: "<length>"; inherits: true; initial-value: 0px; }
+@property --gps-amb-h { syntax: "<length>"; inherits: true; initial-value: 0px; }
+@property --gps-amb-phase { syntax: "<number>"; inherits: false; initial-value: 0; }
+
+@keyframes gps-amb-flow {
+  from { --gps-amb-phase: 0; }
+  to { --gps-amb-phase: 1; }
+}
+
+@keyframes gps-amb-breathe {
+  0%, 100% { opacity: calc(var(--gps-amb-intensity) * 0.6); transform: scale(0.96); }
+  50% { opacity: var(--gps-amb-intensity); transform: scale(1.05); }
+}
+
+html.gps-active[data-gps-amb] [data-gps="stage"]::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  left: calc(var(--gps-amb-l) - var(--gps-amb-size));
+  top: calc(var(--gps-amb-t) - var(--gps-amb-size));
+  width: calc(var(--gps-amb-w) + 2 * var(--gps-amb-size));
+  height: calc(var(--gps-amb-h) + 2 * var(--gps-amb-size));
+  opacity: var(--gps-amb-intensity);
+  filter: blur(calc(var(--gps-amb-size) * 0.12)) saturate(1.15);
+  will-change: transform, opacity;
+  background:
+    radial-gradient(calc(var(--gps-amb-w) / 4 * 0.9 + var(--gps-amb-size) * 0.35) calc(var(--gps-amb-size) * (0.85 + 0.2 * sin(var(--gps-amb-phase) * 2turn + 0deg))) at calc(var(--gps-amb-size) + var(--gps-amb-w) * 0.125 + var(--gps-amb-w) / 4 * 0.35 * sin(var(--gps-amb-phase) * 1turn + 0deg)) var(--gps-amb-size), var(--gps-amb-c0), color-mix(in srgb, var(--gps-amb-c0) 45%, transparent) 45%, transparent),
+    radial-gradient(calc(var(--gps-amb-w) / 4 * 0.9 + var(--gps-amb-size) * 0.35) calc(var(--gps-amb-size) * (0.85 + 0.2 * sin(var(--gps-amb-phase) * 2turn + 45deg))) at calc(var(--gps-amb-size) + var(--gps-amb-w) * 0.375 + var(--gps-amb-w) / 4 * 0.35 * sin(var(--gps-amb-phase) * 1turn + 67.5deg)) var(--gps-amb-size), var(--gps-amb-c1), color-mix(in srgb, var(--gps-amb-c1) 45%, transparent) 45%, transparent),
+    radial-gradient(calc(var(--gps-amb-w) / 4 * 0.9 + var(--gps-amb-size) * 0.35) calc(var(--gps-amb-size) * (0.85 + 0.2 * sin(var(--gps-amb-phase) * 2turn + 90deg))) at calc(var(--gps-amb-size) + var(--gps-amb-w) * 0.625 + var(--gps-amb-w) / 4 * 0.35 * sin(var(--gps-amb-phase) * 1turn + 135deg)) var(--gps-amb-size), var(--gps-amb-c2), color-mix(in srgb, var(--gps-amb-c2) 45%, transparent) 45%, transparent),
+    radial-gradient(calc(var(--gps-amb-w) / 4 * 0.9 + var(--gps-amb-size) * 0.35) calc(var(--gps-amb-size) * (0.85 + 0.2 * sin(var(--gps-amb-phase) * 2turn + 135deg))) at calc(var(--gps-amb-size) + var(--gps-amb-w) * 0.875 + var(--gps-amb-w) / 4 * 0.35 * sin(var(--gps-amb-phase) * 1turn + 202.5deg)) var(--gps-amb-size), var(--gps-amb-c3), color-mix(in srgb, var(--gps-amb-c3) 45%, transparent) 45%, transparent),
+    radial-gradient(calc(var(--gps-amb-size) * (0.85 + 0.2 * sin(var(--gps-amb-phase) * 2turn + 180deg))) calc(var(--gps-amb-h) / 4 * 0.9 + var(--gps-amb-size) * 0.35) at calc(var(--gps-amb-size) + var(--gps-amb-w)) calc(var(--gps-amb-size) + var(--gps-amb-h) * 0.125 + var(--gps-amb-h) / 4 * 0.35 * sin(var(--gps-amb-phase) * 1turn + 270deg)), var(--gps-amb-c4), color-mix(in srgb, var(--gps-amb-c4) 45%, transparent) 45%, transparent),
+    radial-gradient(calc(var(--gps-amb-size) * (0.85 + 0.2 * sin(var(--gps-amb-phase) * 2turn + 225deg))) calc(var(--gps-amb-h) / 4 * 0.9 + var(--gps-amb-size) * 0.35) at calc(var(--gps-amb-size) + var(--gps-amb-w)) calc(var(--gps-amb-size) + var(--gps-amb-h) * 0.375 + var(--gps-amb-h) / 4 * 0.35 * sin(var(--gps-amb-phase) * 1turn + 337.5deg)), var(--gps-amb-c5), color-mix(in srgb, var(--gps-amb-c5) 45%, transparent) 45%, transparent),
+    radial-gradient(calc(var(--gps-amb-size) * (0.85 + 0.2 * sin(var(--gps-amb-phase) * 2turn + 270deg))) calc(var(--gps-amb-h) / 4 * 0.9 + var(--gps-amb-size) * 0.35) at calc(var(--gps-amb-size) + var(--gps-amb-w)) calc(var(--gps-amb-size) + var(--gps-amb-h) * 0.625 + var(--gps-amb-h) / 4 * 0.35 * sin(var(--gps-amb-phase) * 1turn + 45deg)), var(--gps-amb-c6), color-mix(in srgb, var(--gps-amb-c6) 45%, transparent) 45%, transparent),
+    radial-gradient(calc(var(--gps-amb-size) * (0.85 + 0.2 * sin(var(--gps-amb-phase) * 2turn + 315deg))) calc(var(--gps-amb-h) / 4 * 0.9 + var(--gps-amb-size) * 0.35) at calc(var(--gps-amb-size) + var(--gps-amb-w)) calc(var(--gps-amb-size) + var(--gps-amb-h) * 0.875 + var(--gps-amb-h) / 4 * 0.35 * sin(var(--gps-amb-phase) * 1turn + 112.5deg)), var(--gps-amb-c7), color-mix(in srgb, var(--gps-amb-c7) 45%, transparent) 45%, transparent),
+    radial-gradient(calc(var(--gps-amb-w) / 4 * 0.9 + var(--gps-amb-size) * 0.35) calc(var(--gps-amb-size) * (0.85 + 0.2 * sin(var(--gps-amb-phase) * 2turn + 0deg))) at calc(var(--gps-amb-size) + var(--gps-amb-w) * 0.875 + var(--gps-amb-w) / 4 * 0.35 * sin(var(--gps-amb-phase) * 1turn + 180deg)) calc(var(--gps-amb-size) + var(--gps-amb-h)), var(--gps-amb-c8), color-mix(in srgb, var(--gps-amb-c8) 45%, transparent) 45%, transparent),
+    radial-gradient(calc(var(--gps-amb-w) / 4 * 0.9 + var(--gps-amb-size) * 0.35) calc(var(--gps-amb-size) * (0.85 + 0.2 * sin(var(--gps-amb-phase) * 2turn + 45deg))) at calc(var(--gps-amb-size) + var(--gps-amb-w) * 0.625 + var(--gps-amb-w) / 4 * 0.35 * sin(var(--gps-amb-phase) * 1turn + 247.5deg)) calc(var(--gps-amb-size) + var(--gps-amb-h)), var(--gps-amb-c9), color-mix(in srgb, var(--gps-amb-c9) 45%, transparent) 45%, transparent),
+    radial-gradient(calc(var(--gps-amb-w) / 4 * 0.9 + var(--gps-amb-size) * 0.35) calc(var(--gps-amb-size) * (0.85 + 0.2 * sin(var(--gps-amb-phase) * 2turn + 90deg))) at calc(var(--gps-amb-size) + var(--gps-amb-w) * 0.375 + var(--gps-amb-w) / 4 * 0.35 * sin(var(--gps-amb-phase) * 1turn + 315deg)) calc(var(--gps-amb-size) + var(--gps-amb-h)), var(--gps-amb-c10), color-mix(in srgb, var(--gps-amb-c10) 45%, transparent) 45%, transparent),
+    radial-gradient(calc(var(--gps-amb-w) / 4 * 0.9 + var(--gps-amb-size) * 0.35) calc(var(--gps-amb-size) * (0.85 + 0.2 * sin(var(--gps-amb-phase) * 2turn + 135deg))) at calc(var(--gps-amb-size) + var(--gps-amb-w) * 0.125 + var(--gps-amb-w) / 4 * 0.35 * sin(var(--gps-amb-phase) * 1turn + 22.5deg)) calc(var(--gps-amb-size) + var(--gps-amb-h)), var(--gps-amb-c11), color-mix(in srgb, var(--gps-amb-c11) 45%, transparent) 45%, transparent),
+    radial-gradient(calc(var(--gps-amb-size) * (0.85 + 0.2 * sin(var(--gps-amb-phase) * 2turn + 180deg))) calc(var(--gps-amb-h) / 4 * 0.9 + var(--gps-amb-size) * 0.35) at var(--gps-amb-size) calc(var(--gps-amb-size) + var(--gps-amb-h) * 0.875 + var(--gps-amb-h) / 4 * 0.35 * sin(var(--gps-amb-phase) * 1turn + 90deg)), var(--gps-amb-c12), color-mix(in srgb, var(--gps-amb-c12) 45%, transparent) 45%, transparent),
+    radial-gradient(calc(var(--gps-amb-size) * (0.85 + 0.2 * sin(var(--gps-amb-phase) * 2turn + 225deg))) calc(var(--gps-amb-h) / 4 * 0.9 + var(--gps-amb-size) * 0.35) at var(--gps-amb-size) calc(var(--gps-amb-size) + var(--gps-amb-h) * 0.625 + var(--gps-amb-h) / 4 * 0.35 * sin(var(--gps-amb-phase) * 1turn + 157.5deg)), var(--gps-amb-c13), color-mix(in srgb, var(--gps-amb-c13) 45%, transparent) 45%, transparent),
+    radial-gradient(calc(var(--gps-amb-size) * (0.85 + 0.2 * sin(var(--gps-amb-phase) * 2turn + 270deg))) calc(var(--gps-amb-h) / 4 * 0.9 + var(--gps-amb-size) * 0.35) at var(--gps-amb-size) calc(var(--gps-amb-size) + var(--gps-amb-h) * 0.375 + var(--gps-amb-h) / 4 * 0.35 * sin(var(--gps-amb-phase) * 1turn + 225deg)), var(--gps-amb-c14), color-mix(in srgb, var(--gps-amb-c14) 45%, transparent) 45%, transparent),
+    radial-gradient(calc(var(--gps-amb-size) * (0.85 + 0.2 * sin(var(--gps-amb-phase) * 2turn + 315deg))) calc(var(--gps-amb-h) / 4 * 0.9 + var(--gps-amb-size) * 0.35) at var(--gps-amb-size) calc(var(--gps-amb-size) + var(--gps-amb-h) * 0.125 + var(--gps-amb-h) / 4 * 0.35 * sin(var(--gps-amb-phase) * 1turn + 292.5deg)), var(--gps-amb-c15), color-mix(in srgb, var(--gps-amb-c15) 45%, transparent) 45%, transparent);
+  transition:
+    --gps-amb-c0 1.4s ease,
+    --gps-amb-c1 1.4s ease,
+    --gps-amb-c2 1.4s ease,
+    --gps-amb-c3 1.4s ease,
+    --gps-amb-c4 1.4s ease,
+    --gps-amb-c5 1.4s ease,
+    --gps-amb-c6 1.4s ease,
+    --gps-amb-c7 1.4s ease,
+    --gps-amb-c8 1.4s ease,
+    --gps-amb-c9 1.4s ease,
+    --gps-amb-c10 1.4s ease,
+    --gps-amb-c11 1.4s ease,
+    --gps-amb-c12 1.4s ease,
+    --gps-amb-c13 1.4s ease,
+    --gps-amb-c14 1.4s ease,
+    --gps-amb-c15 1.4s ease,
+    --gps-amb-l 0.6s ease,
+    --gps-amb-t 0.6s ease,
+    --gps-amb-w 0.6s ease,
+    --gps-amb-h 0.6s ease;
+}
+
+html.gps-active[data-gps-amb="on"] [data-gps="stage"]::after {
+  animation:
+    gps-amb-flow calc(16s / var(--gps-amb-speed)) linear infinite,
+    gps-amb-breathe calc(7s / var(--gps-amb-speed)) ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.gps-active[data-gps-amb] [data-gps="stage"]::after { animation: none; }
+}
+
 /* ---------- Debug (content.js DEBUG = true) ---------- */
 
 html.gps-active [data-gps-debug] {

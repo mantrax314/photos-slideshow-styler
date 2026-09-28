@@ -2,7 +2,7 @@
   'use strict';
 
   const { DEFAULTS, LIMITS, PRESETS, normalize } = GPS;
-  const PERCENT = new Set(['blurBrightness', 'shadowOpacity']);
+  const PERCENT = new Set(['blurBrightness', 'shadowOpacity', 'ambIntensity', 'ambSaturation']);
   const SAVE_DELAY = 150; // debounce slider drags; storage.sync has a write quota
 
   const inputs = [...document.querySelectorAll('[data-key]')];
@@ -20,6 +20,7 @@
   function format(key, value) {
     if (PERCENT.has(key)) return `${Math.round(value * 100)}%`;
     if (key === 'gradAngle') return `${value}°`;
+    if (key === 'ambSpeed') return value > 0 ? `${value.toFixed(1)}×` : 'Off';
     return `${value}px`;
   }
 
@@ -31,6 +32,9 @@
   function showModeRows() {
     for (const row of document.querySelectorAll('[data-modes]')) {
       row.hidden = !row.dataset.modes.split(' ').includes(settings.bgMode);
+    }
+    for (const row of document.querySelectorAll('[data-requires]')) {
+      row.hidden = !settings[row.dataset.requires];
     }
   }
 
@@ -65,7 +69,7 @@
     const raw = input.type === 'checkbox' ? input.checked : input.value;
     settings = normalize({ ...settings, [key]: typeof DEFAULTS[key] === 'number' ? Number(raw) : raw });
     showOutput(input);
-    if (key === 'bgMode') showModeRows();
+    if (key === 'bgMode' || key === 'ambEnabled') showModeRows();
     if (key === 'enabled') document.body.classList.toggle('disabled', !settings.enabled);
   }
 

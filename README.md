@@ -19,7 +19,8 @@ Open a photo, then choose ⋮ → **Slideshow**. The styles apply while the slid
 
 | File | Role |
 | --- | --- |
-| `manifest.json` | MV3 manifest. The only permission is `storage`. |
+| `manifest.json` | MV3 manifest. Permissions: `storage`, plus host access to `*.googleusercontent.com` for ambient-light sampling. |
+| `background.js` | Service worker that samples photo edge colors for the ambient light |
 | `settings.js` | Defaults, limits, presets and validation, shared by the content script and the popup |
 | `content.js` | Detection, tagging, fit calculation, settings → CSS variables. **All Google selectors are in `SELECTORS` at the top.** |
 | `styles.css` | Every rule is scoped under `html.gps-active` and targets only our own `data-gps` markers |
@@ -34,6 +35,10 @@ Open a photo, then choose ⋮ → **Slideshow**. The styles apply while the slid
   `fit = min((stageW − 2·total) / boxW, (stageH − 2·total) / boxH, 1)` and `total = margin + mat + frame`.
   The frame and shadow sizes are divided by `--gps-fit` so they keep the pixel sizes you chose.
 - **Blurred-photo background:** a `::before` on the stage uses the current slide's image URL (`--gps-photo`).
+- **Ambient light** (Govee/Ambilight style; off by default, turn it on in the popup or with the *Ambilight* preset):
+  - `background.js` fetches a small copy of each photo, then splits its edges into 16 zones (4 per side, clockwise). For each zone it takes a vibrancy-weighted average color. This runs in the worker because the page's content script can't read pixels of cross-origin images.
+  - `content.js` makes each color more lamp-like: it boosts saturation and keeps lightness in a range that glows. It writes the colors, and the frame's outer rectangle, to `--gps-amb-*` variables. All three slides (previous, current and next) are sampled ahead of time, so the next colors are ready before the slide changes.
+  - A `::after` on the stage, behind the slides, draws 16 radial-gradient lights around the frame. A registered `--gps-amb-phase` animation makes them drift along their edge and pulse in reach. A second animation makes the whole glow breathe. The colors and geometry are registered properties, so they cross-fade when the slide changes. Setting **Animation** to 0 (or turning on the OS "reduce motion" setting) keeps the lights still.
 
 ## Debug
 
