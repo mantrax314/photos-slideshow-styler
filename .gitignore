@@ -1,0 +1,17 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+
+# Packaged extension builds and signing keys
+*.zip
+*.crx
+*.pem
+
+# Local tooling
+node_modules/
+.claude/settings.local.json
