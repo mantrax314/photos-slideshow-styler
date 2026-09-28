@@ -17,6 +17,13 @@
   <section>
     <h2>Presets</h2>
     <div class="presets" id="presets"></div>
+    <div class="presets custom" id="customPresets"></div>
+    <button type="button" class="add-preset" id="addPreset">+ Save current as preset</button>
+    <form class="preset-form" id="presetForm" hidden>
+      <input type="text" id="presetName" maxlength="24" placeholder="Preset name" required autocomplete="off">
+      <button type="submit">Save</button>
+      <button type="button" id="presetCancel">Cancel</button>
+    </form>
   </section>
 
   <section>

@@ -15,6 +15,8 @@ After changing any file, click the reload icon on the extension card, then reloa
 
 Open a photo, then choose ⋮ → **Slideshow**. The styles apply while the slideshow is running and are removed when you exit. Click the toolbar icon to change settings. Changes apply to the running slideshow right away.
 
+**Your own presets:** set things up the way you like, then click **+ Save current as preset** and give it a name. Saving under an existing name updates that preset. Click **×** and then **Delete?** to remove one. Custom presets are stored in `chrome.storage.local`, so they stay in this browser and don't sync. The on/off switch isn't saved in a preset.
+
 ## Files
 
 | File | Role |

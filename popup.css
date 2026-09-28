@@ -123,6 +123,47 @@ button {
 button:hover { border-color: var(--accent); }
 
 .presets { display: flex; gap: 6px; flex-wrap: wrap; }
+.presets.custom { margin-top: 6px; }
+.presets[hidden], .add-preset[hidden], .preset-form[hidden] { display: none; }
+
+/* Custom preset: apply button + remove button joined into one chip */
+.chip { display: inline-flex; }
+.chip > button:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.chip > .remove {
+  border-left: none;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  padding: 5px 7px;
+  color: var(--muted);
+}
+.chip > .remove:hover { color: var(--error); border-color: var(--error); }
+.chip.confirm > .remove { color: var(--error); border-color: var(--error); }
+
+.add-preset {
+  margin-top: 8px;
+  border-style: dashed;
+  background: none;
+  color: var(--muted);
+}
+
+.preset-form { display: flex; gap: 6px; margin-top: 8px; }
+.preset-form input {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 6px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+}
 
 footer {
   display: flex;
