@@ -7,8 +7,10 @@
 
   const inputs = [...document.querySelectorAll('[data-key]')];
   const status = document.getElementById('status');
+  const stateText = document.getElementById('stateText');
   let settings = { ...DEFAULTS };
   let saveTimer = 0;
+  let statusTimer = 0;
 
   for (const input of inputs) {
     const limits = LIMITS[input.dataset.key];
@@ -18,6 +20,7 @@
   }
 
   function format(key, value) {
+    if (typeof value === 'string') return value.toUpperCase();
     if (PERCENT.has(key)) return `${Math.round(value * 100)}%`;
     if (key === 'gradAngle') return `${value}°`;
     if (key === 'ambSpeed') return value > 0 ? `${value.toFixed(1)}×` : 'Off';
@@ -25,6 +28,10 @@
   }
 
   function showOutput(input) {
+    if (input.type === 'range') {
+      const [min, max] = LIMITS[input.dataset.key];
+      input.style.setProperty('--fill', `${((settings[input.dataset.key] - min) / (max - min)) * 100}%`);
+    }
     const out = input.nextElementSibling;
     if (out && out.tagName === 'OUTPUT') out.textContent = format(input.dataset.key, settings[input.dataset.key]);
   }
@@ -42,11 +49,18 @@
     for (const input of inputs) {
       const value = settings[input.dataset.key];
       if (input.type === 'checkbox') input.checked = value;
+      else if (input.type === 'radio') input.checked = input.value === value;
       else input.value = String(value);
       showOutput(input);
     }
     showModeRows();
+    showEnabled();
+    refreshVisuals();
+  }
+
+  function showEnabled() {
     document.body.classList.toggle('disabled', !settings.enabled);
+    stateText.textContent = settings.enabled ? 'On for Google Photos' : 'Paused';
   }
 
   function save() {
@@ -64,12 +78,14 @@
   }
 
   function readInput(input) {
+    if (input.type === 'radio' && !input.checked) return;
     const key = input.dataset.key;
     const raw = input.type === 'checkbox' ? input.checked : input.value;
     settings = normalize({ ...settings, [key]: typeof DEFAULTS[key] === 'number' ? Number(raw) : raw });
     showOutput(input);
     if (key === 'bgMode' || key === 'ambEnabled') showModeRows();
-    if (key === 'enabled') document.body.classList.toggle('disabled', !settings.enabled);
+    if (key === 'enabled') showEnabled();
+    refreshVisuals();
   }
 
   for (const input of inputs) {
@@ -86,15 +102,117 @@
   function showStatus(text, isError = false) {
     status.textContent = text;
     status.classList.toggle('error', isError);
+    status.classList.add('show');
+    clearTimeout(statusTimer);
+    statusTimer = setTimeout(() => status.classList.remove('show'), isError ? 6000 : 1600);
+  }
+
+  // ---------- visual preview ----------
+  // A scaled-down sketch of the slideshow: stage = screen, photo box = mat + frame + shadow.
+
+  const REF_WIDTH = 1440; // screen width the preview stands in for
+  const PHOTO_ASPECT = 3 / 2;
+
+  function makeScene() {
+    const scene = document.createElement('div');
+    scene.className = 'scene';
+    scene.innerHTML = '<div class="scene-bg"></div><div class="scene-glow"></div><div class="scene-photo"><div class="scene-img"></div></div>';
+    return scene;
+  }
+
+  function rgba(hex, alpha) {
+    const n = parseInt(hex.slice(1), 16);
+    return `rgba(${n >> 16}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
+  }
+
+  function paintScene(scene, s) {
+    const W = scene.clientWidth || 300;
+    const H = scene.clientHeight || W * 9 / 16;
+    const k = W / REF_WIDTH;
+    const [bg, glow, photo] = scene.children;
+
+    bg.className = 'scene-bg';
+    bg.style.cssText = '';
+    if (s.bgMode === 'gradient') {
+      bg.style.background = `linear-gradient(${s.gradAngle}deg, ${s.gradColor1}, ${s.gradColor2})`;
+    } else if (s.bgMode === 'blur') {
+      bg.classList.add('blurred');
+      bg.style.filter = `blur(${s.blurAmount * k}px) brightness(${s.blurBrightness})`;
+    } else {
+      bg.style.backgroundColor = s.bgColor;
+      if (s.bgMode === 'image' && /^https:\/\//i.test(s.bgImageUrl)) {
+        bg.style.backgroundImage = `url(${JSON.stringify(s.bgImageUrl)})`;
+      }
+    }
+
+    const edge = (s.matWidth + s.frameWidth) * k;
+    const availW = W - 2 * s.margin * k - 2 * edge;
+    const availH = H - 2 * s.margin * k - 2 * edge;
+    const imgW = Math.max(4, Math.min(availW, availH * PHOTO_ASPECT));
+    const imgH = imgW / PHOTO_ASPECT;
+    Object.assign(photo.style, {
+      width: `${imgW}px`,
+      height: `${imgH}px`,
+      padding: `${s.matWidth * k}px`,
+      background: s.matColor,
+      border: `${s.frameWidth * k}px solid ${s.frameColor}`,
+      borderRadius: `${s.radius * k}px`,
+      boxShadow: `${s.shadowX * k}px ${s.shadowY * k}px ${s.shadowBlur * k}px ${s.shadowSpread * k}px ${rgba(s.shadowColor, s.shadowOpacity)}`,
+    });
+    photo.firstChild.style.borderRadius = `${Math.max(0, s.radius - s.matWidth - s.frameWidth) * k}px`;
+
+    glow.hidden = !s.ambEnabled;
+    if (s.ambEnabled) {
+      const size = s.ambSize * k;
+      Object.assign(glow.style, {
+        width: `${imgW + 2 * edge + size}px`,
+        height: `${imgH + 2 * edge + size}px`,
+        opacity: String(s.ambIntensity),
+        filter: `blur(${Math.max(2, size * 0.35)}px) saturate(${s.ambSaturation})`,
+      });
+      glow.style.setProperty('--glow-duration', `${10 / Math.max(0.1, s.ambSpeed)}s`);
+      glow.style.setProperty('--glow-state', s.ambSpeed > 0 ? 'running' : 'paused');
+    }
+  }
+
+  const previewScene = makeScene();
+  document.getElementById('preview').append(previewScene);
+
+  // Buttons whose preset values are shown as selected when they match the current settings.
+  const presetButtons = new Map(); // button -> values
+
+  function matches(values) {
+    return Object.keys(values).every((key) => !(key in DEFAULTS) || normalize({ ...settings, [key]: values[key] })[key] === settings[key]);
+  }
+
+  function refreshVisuals() {
+    paintScene(previewScene, settings);
+    for (const [button, values] of presetButtons) {
+      const on = matches(values);
+      button.classList.toggle('active', on);
+      button.setAttribute('aria-pressed', String(on));
+    }
+  }
+
+  function makePresetButton(label, values) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'preset';
+    const scene = makeScene();
+    const name = document.createElement('span');
+    name.className = 'name';
+    name.textContent = label;
+    button.append(scene, name);
+    button.addEventListener('click', () => applyPreset(values));
+    presetButtons.set(button, values);
+    // Paint once attached so the thumbnail can measure itself.
+    requestAnimationFrame(() => paintScene(scene, normalize({ ...DEFAULTS, ...values, enabled: true })));
+    return button;
   }
 
   const presetBox = document.getElementById('presets');
   for (const preset of Object.values(PRESETS)) {
-    const button = document.createElement('button');
-    button.type = 'button';
-    button.textContent = preset.label;
-    button.addEventListener('click', () => applyPreset(preset.values));
-    presetBox.append(button);
+    presetBox.append(makePresetButton(preset.label, preset.values));
   }
 
   // ---------- custom presets ----------
@@ -115,17 +233,17 @@
   }
 
   function renderCustomPresets() {
+    for (const button of presetButtons.keys()) {
+      if (customBox.contains(button)) presetButtons.delete(button);
+    }
     customBox.replaceChildren();
     customBox.hidden = customPresets.length === 0;
     for (const preset of customPresets) {
       const chip = document.createElement('span');
       chip.className = 'chip';
 
-      const apply = document.createElement('button');
-      apply.type = 'button';
-      apply.textContent = preset.name;
+      const apply = makePresetButton(preset.name, preset.values);
       apply.title = `Apply “${preset.name}”`;
-      apply.addEventListener('click', () => applyPreset(preset.values));
 
       // Two clicks to delete: × turns into "Delete?" for a few seconds.
       const remove = document.createElement('button');
@@ -154,6 +272,7 @@
       chip.append(apply, remove);
       customBox.append(chip);
     }
+    refreshVisuals();
   }
 
   function toggleForm(open) {
